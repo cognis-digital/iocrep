@@ -5,3 +5,4 @@
 2024-08-22T09:25:35  fix(docs): add usage examples to help
 2024-09-03T16:42:42  docs(fixtures): add a --format json alias
 2024-10-02T11:59:49  test(io): guard against ReDoS in patterns
+2024-10-13T18:16:56  build(docs): handle CRLF line endings
