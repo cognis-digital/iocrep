@@ -7,3 +7,4 @@
 2024-10-02T11:59:49  test(io): guard against ReDoS in patterns
 2024-10-13T18:16:56  build(docs): handle CRLF line endings
 2024-11-12T13:33:03  build(deps): add a dry-run flag
+2024-11-23T08:50:10  chore(cache): reduce false positives on edge cases
