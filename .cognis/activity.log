@@ -12,3 +12,4 @@
 2025-01-03T10:24:24  style(deps): pin the test dependencies
 2025-01-14T17:41:31  feat(cache): add a JSON schema for output
 2025-01-26T12:58:38  docs(engine): add a dry-run flag
+2025-02-24T19:15:45  test(deps): reduce false positives on edge cases
