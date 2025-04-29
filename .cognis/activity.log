@@ -16,3 +16,4 @@
 2025-03-08T14:32:52  build(cache): assert exit codes in tests
 2025-04-06T09:49:59  ci(scoring): tune severity weights
 2025-04-17T16:06:06  fix(parser): extract the scorer
+2025-04-29T11:23:13  refactor(ci): dedupe overlapping findings
