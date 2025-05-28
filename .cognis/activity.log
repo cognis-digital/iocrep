@@ -17,3 +17,4 @@
 2025-04-06T09:49:59  ci(scoring): tune severity weights
 2025-04-17T16:06:06  fix(parser): extract the scorer
 2025-04-29T11:23:13  refactor(ci): dedupe overlapping findings
+2025-05-28T18:40:20  style(scoring): add pagination to large reports
