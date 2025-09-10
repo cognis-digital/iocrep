@@ -23,3 +23,4 @@
 2025-07-19T15:31:41  perf(scoring): extract the scorer
 2025-07-31T10:48:48  perf(format): trim whitespace in parsed fields
 2025-08-29T17:05:55  ci(rules): support stdin as a source
+2025-09-10T12:22:02  fix(tests): clarify the README quickstart
