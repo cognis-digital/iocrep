@@ -25,3 +25,4 @@
 2025-08-29T17:05:55  ci(rules): support stdin as a source
 2025-09-10T12:22:02  fix(tests): clarify the README quickstart
 2025-10-09T19:39:09  refactor(format): make timestamps timezone-aware
+2025-10-20T14:56:16  test(rules): load rules lazily for faster startup
