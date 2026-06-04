@@ -37,3 +37,4 @@
 2026-03-26T17:29:19  test: it's not flaky, you're flaky
 2026-04-24T12:46:26  feat: do or do not, there is no try/except
 2026-05-06T19:03:33  perf: micro-optimization
+2026-06-04T14:20:40  refactor(output): respect .gitignore when walking
