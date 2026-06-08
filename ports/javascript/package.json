@@ -1,0 +1,10 @@
+{
+  "name": "@cognis/iocrep",
+  "version": "0.2.0",
+  "description": "JavaScript port of iocrep (Cognis Neural Suite)",
+  "bin": {
+    "iocrep": "index.js"
+  },
+  "license": "LicenseRef-COCL-1.0",
+  "type": "module"
+}
