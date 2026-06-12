@@ -16,7 +16,7 @@
 </div>
 
 ```bash
-pip install cognis-iocrep
+pip install "git+https://github.com/cognis-digital/iocrep.git"
 iocrep scan .            # → prioritized findings in seconds
 ```
 
@@ -49,7 +49,7 @@ Score IOCs against offline reputation/allow lists with explainable verdicts — 
 ## Quick start
 
 ```bash
-pip install cognis-iocrep
+pip install "git+https://github.com/cognis-digital/iocrep.git"
 iocrep --version
 iocrep scan .                       # scan current project
 iocrep scan . --format json         # machine-readable
