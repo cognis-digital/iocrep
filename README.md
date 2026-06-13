@@ -22,28 +22,38 @@ iocrep scan .            # → prioritized findings in seconds
 
 ## Usage — step by step
 
-`iocrep` scores indicators of compromise (IP, domain, URL, hash, email —
-defanged forms accepted) against offline reputation / allow lists. Single
-subcommand: `score`.
+1. **Install:**
 
-```bash
-# 1. Install
-pip install -e .
+   ```bash
+   pip install iocrep
+   ```
 
-# 2. Score IOCs passed on the command line
-iocrep score 8.8.8.8 evil[.]example[.]com 44d88612fea8a8f36de82e1278abb02f
+2. **Score indicators** — pass IOCs (IP, domain, URL, hash, email; defanged forms accepted) against the offline reputation DB:
 
-# 3. Score a file of indicators against an offline reputation DB
-iocrep score --infile iocs.txt --db reputation.json --format json -o iocrep.json
+   ```bash
+   iocrep score 198.51.100.7 evil.example[.]com d41d8cd98f00b204e9800998ecf8427e
+   ```
 
-# 4. Read the result: each IOC gets a severity; exit code is non-zero when any
-#    indicator meets/exceeds --fail-on (default: medium). HTML report also available.
-iocrep score --infile iocs.txt --format html -o iocrep.html
+   Each verdict carries a score, severity, and the explainable top reason.
 
-# 5. CI / SOAR gate — fail on high-severity hits
-iocrep score --infile iocs.txt --fail-on high || exit 1
-```
+3. **Score a file of indicators** and supply your own reputation/allow list:
 
+   ```bash
+   iocrep score --infile iocs.txt --db reputation.json
+   ```
+
+4. **Read the output** — table, JSON, or a standalone HTML report written to a file:
+
+   ```bash
+   iocrep score --infile iocs.txt --format json -o verdicts.json
+   iocrep score --infile iocs.txt --format html -o report.html
+   ```
+
+5. **CI / triage gate** — exit non-zero at/above a severity (default `medium`):
+
+   ```bash
+   iocrep score --infile iocs.txt --fail-on high
+   ```
 
 ## Contents
 
