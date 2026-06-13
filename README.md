@@ -20,6 +20,12 @@ pip install "git+https://github.com/cognis-digital/iocrep.git"
 iocrep scan .            # → prioritized findings in seconds
 ```
 
+<!-- cognis:layman:start -->
+## What is this?
+
+iocrep checks suspicious network addresses, domain names, file hashes, and URLs against known bad-actor lists and flags anything that looks dangerous. It runs entirely on your own machine with no internet connection required, so your threat data stays private. Security analysts and IT teams use it to quickly triage indicators from incident reports — paste in a list of suspicious items and get back a clear verdict (clean, low, medium, high, or critical) with a plain explanation of why each one was flagged. It also works inside automated pipelines and AI agent workflows via a built-in MCP server.
+<!-- cognis:layman:end -->
+
 ## Contents
 
 - [Why iocrep?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
@@ -46,6 +52,42 @@ Score IOCs against offline reputation/allow lists with explainable verdicts — 
 <div align="right"><a href="#top">↑ back to top</a></div>
 
 <a name="quick-start"></a>
+<!-- cognis:install:start -->
+## Install
+
+`iocrep` is source-available (not published to PyPI) — every method below installs
+straight from GitHub. Pick whichever you prefer; the one-line scripts auto-detect
+the best tool available on your machine.
+
+**One-liner (Linux / macOS):**
+```sh
+curl -fsSL https://raw.githubusercontent.com/cognis-digital/iocrep/HEAD/install.sh | sh
+```
+
+**One-liner (Windows PowerShell):**
+```powershell
+irm https://raw.githubusercontent.com/cognis-digital/iocrep/HEAD/install.ps1 | iex
+```
+
+**Or install manually — any one of:**
+```sh
+pipx install "git+https://github.com/cognis-digital/iocrep.git"     # isolated (recommended)
+uv tool install "git+https://github.com/cognis-digital/iocrep.git"  # uv
+pip install "git+https://github.com/cognis-digital/iocrep.git"      # pip
+```
+
+**From source:**
+```sh
+git clone https://github.com/cognis-digital/iocrep.git
+cd iocrep && pip install .
+```
+
+Then run:
+```sh
+iocrep --help
+```
+<!-- cognis:install:end -->
+
 ## Quick start
 
 ```bash
