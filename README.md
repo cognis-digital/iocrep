@@ -20,6 +20,31 @@ pip install cognis-iocrep
 iocrep scan .            # → prioritized findings in seconds
 ```
 
+## Usage — step by step
+
+`iocrep` scores indicators of compromise (IP, domain, URL, hash, email —
+defanged forms accepted) against offline reputation / allow lists. Single
+subcommand: `score`.
+
+```bash
+# 1. Install
+pip install -e .
+
+# 2. Score IOCs passed on the command line
+iocrep score 8.8.8.8 evil[.]example[.]com 44d88612fea8a8f36de82e1278abb02f
+
+# 3. Score a file of indicators against an offline reputation DB
+iocrep score --infile iocs.txt --db reputation.json --format json -o iocrep.json
+
+# 4. Read the result: each IOC gets a severity; exit code is non-zero when any
+#    indicator meets/exceeds --fail-on (default: medium). HTML report also available.
+iocrep score --infile iocs.txt --format html -o iocrep.html
+
+# 5. CI / SOAR gate — fail on high-severity hits
+iocrep score --infile iocs.txt --fail-on high || exit 1
+```
+
+
 ## Contents
 
 - [Why iocrep?](#why) · [Features](#features) · [Quick start](#quick-start) · [Example](#example) · [Architecture](#architecture) · [AI stack](#ai-stack) · [How it compares](#how-it-compares) · [Integrations](#integrations) · [Install anywhere](#install-anywhere) · [Related](#related) · [Contributing](#contributing)
