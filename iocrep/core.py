@@ -163,17 +163,40 @@ class ReputationDB:
     def load(cls, path: Optional[str]) -> "ReputationDB":
         if not path:
             return cls()
-        with open(path, "r", encoding="utf-8") as fh:
-            data = json.load(fh)
-        block_raw = data.get("blocklist", {}) or {}
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+        except UnicodeDecodeError as exc:
+            raise ValueError(f"reputation DB is not valid UTF-8: {exc}") from exc
+        if not isinstance(data, dict):
+            raise ValueError(
+                f"reputation DB must be a JSON object at the top level, "
+                f"got {type(data).__name__}"
+            )
+        block_raw = data.get("blocklist") or {}
+        if not isinstance(block_raw, dict):
+            raise ValueError(
+                f"reputation DB 'blocklist' must be a JSON object, "
+                f"got {type(block_raw).__name__}"
+            )
         block: Dict[str, dict] = {}
         for key, val in block_raw.items():
+            if not isinstance(key, str):
+                continue  # skip non-string keys silently
             if isinstance(val, str):
                 val = {"category": val, "weight": 80}
+            elif not isinstance(val, dict):
+                val = {"category": "malicious", "weight": 80}
             val.setdefault("category", "malicious")
             val.setdefault("weight", 80)
             block[key.lower()] = val
-        allow = {str(a).lower() for a in (data.get("allowlist", []) or [])}
+        allow_raw = data.get("allowlist") or []
+        if not isinstance(allow_raw, list):
+            raise ValueError(
+                f"reputation DB 'allowlist' must be a JSON array, "
+                f"got {type(allow_raw).__name__}"
+            )
+        allow = {str(a).lower() for a in allow_raw if a is not None}
         return cls(blocklist=block, allowlist=allow)
 
     def lookup(self, candidates: List[str]) -> Optional[Tuple[str, dict]]:
@@ -306,6 +329,9 @@ def _url_signals(value: str) -> List[Reason]:
 
 def score_indicator(raw: str, db: Optional[ReputationDB] = None) -> Verdict:
     """Score a single indicator and return an explainable Verdict."""
+    if not isinstance(raw, str):
+        raw = str(raw) if raw is not None else ""
+    raw = raw.strip()
     db = db or ReputationDB()
     kind, value = classify_indicator(raw)
     indicator = Indicator(raw=raw, kind=kind, value=value)
@@ -368,5 +394,11 @@ def score_indicator(raw: str, db: Optional[ReputationDB] = None) -> Verdict:
 
 
 def score_batch(values: List[str], db: Optional[ReputationDB] = None) -> List[Verdict]:
+    if values is None:
+        return []
     db = db or ReputationDB()
-    return [score_indicator(v, db) for v in values if v.strip()]
+    return [
+        score_indicator(v, db)
+        for v in values
+        if v is not None and str(v).strip()
+    ]

@@ -38,11 +38,14 @@ _SEV_COLORS = {
 def _read_indicators(args: argparse.Namespace) -> List[str]:
     items: List[str] = list(args.indicators or [])
     if args.infile:
-        with open(args.infile, "r", encoding="utf-8") as fh:
-            for line in fh:
-                line = line.strip()
-                if line and not line.startswith("#"):
-                    items.append(line)
+        try:
+            with open(args.infile, "r", encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        items.append(line)
+        except UnicodeDecodeError as exc:
+            raise OSError(f"input file is not valid UTF-8: {exc}") from exc
     return items
 
 
@@ -54,6 +57,8 @@ def _sev_rank(sev: str) -> int:
 # Renderers
 # --------------------------------------------------------------------------- #
 def render_table(verdicts: List[Verdict]) -> str:
+    if not verdicts:
+        return "Scored 0 indicator(s): none"
     rows = [("SEVERITY", "SCORE", "KIND", "INDICATOR", "TOP REASON")]
     for v in verdicts:
         top = max(v.reasons, key=lambda r: abs(r.points)) if v.reasons else None
@@ -112,14 +117,19 @@ def render_html(verdicts: List[Verdict]) -> str:
             f'<span class="rd">{e(r.detail)}</span></li>'
             for r in v.reasons
         ) or "<li>no signals</li>"
-        rows.append(f"""
-        <tr>
-          <td><span class="sev" style="background:{color}">{e(v.severity.upper())}</span></td>
-          <td class="score">{v.score}</td>
-          <td>{e(v.indicator.kind)}</td>
-          <td class="ioc">{e(v.indicator.value)}</td>
-          <td><ul class="reasons">{reason_items}</ul></td>
-        </tr>""")
+        sev_cell = (
+            f'<span class="sev" style="background:{color}">'
+            f"{e(v.severity.upper())}</span>"
+        )
+        rows.append(
+            f"\n        <tr>\n"
+            f"          <td>{sev_cell}</td>\n"
+            f"          <td class=\"score\">{v.score}</td>\n"
+            f"          <td>{e(v.indicator.kind)}</td>\n"
+            f"          <td class=\"ioc\">{e(v.indicator.value)}</td>\n"
+            f"          <td><ul class=\"reasons\">{reason_items}</ul></td>\n"
+            f"        </tr>"
+        )
 
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
@@ -153,13 +163,14 @@ def render_html(verdicts: List[Verdict]) -> str:
 </style></head>
 <body>
   <h1>IOCREP — Indicator Reputation Report</h1>
-  <div class="meta">{e(TOOL_NAME)} v{e(TOOL_VERSION)} · {len(verdicts)} indicator(s) scored · offline analysis</div>
+  <div class="meta">{e(TOOL_NAME)} v{e(TOOL_VERSION)}</div>
   <div class="chips">{chips or '<span class="chip">no results</span>'}</div>
   <table>
     <thead><tr><th>Severity</th><th>Score</th><th>Kind</th><th>Indicator</th><th>Reasoning</th></tr></thead>
     <tbody>{''.join(rows)}</tbody>
   </table>
-  <footer>Verdicts derived from offline reputation/allow lists and local heuristics only. No network lookups performed.</footer>
+  <footer>Verdicts derived from offline heuristics only.
+  No network lookups performed.</footer>
 </body></html>"""
 
 

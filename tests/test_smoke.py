@@ -26,7 +26,7 @@ class TestClassify(unittest.TestCase):
             "bad@phish.test": "email",
             "44d88612fea8a8f36de82e1278abb02f": "md5",
             "da39a3ee5e6b4b0d3255bfef95601890afd80709": "sha1",
-            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": "sha256",
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855": "sha256",  # noqa: E501
             "not a real ioc!!": "unknown",
         }
         for raw, kind in cases.items():
@@ -139,6 +139,104 @@ class TestCli(unittest.TestCase):
             self.assertTrue(os.path.exists(out))
             with open(out, encoding="utf-8") as fh:
                 self.assertIn("IOCREP", fh.read().upper())
+
+
+class TestHardening(unittest.TestCase):
+    """Tests for the hardening additions: edge-cases, bad input, error paths."""
+
+    # --- ReputationDB.load edge cases ---
+
+    def test_db_load_no_path_returns_empty(self):
+        db = ReputationDB.load(None)
+        self.assertEqual(db.blocklist, {})
+        self.assertEqual(db.allowlist, set())
+
+    def test_db_load_missing_file_raises_oserror(self):
+        with self.assertRaises(OSError):
+            ReputationDB.load("/nonexistent/path/db.json")
+
+    def test_db_load_non_dict_root_raises_valueerror(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "bad.json")
+            with open(p, "w") as fh:
+                fh.write("[1, 2, 3]")  # JSON array, not object
+            with self.assertRaises(ValueError) as ctx:
+                ReputationDB.load(p)
+            self.assertIn("JSON object", str(ctx.exception))
+
+    def test_db_load_malformed_json_raises(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "malformed.json")
+            with open(p, "w") as fh:
+                fh.write("{bad json!!!")
+            with self.assertRaises((json.JSONDecodeError, ValueError)):
+                ReputationDB.load(p)
+
+    def test_db_load_blocklist_non_dict_raises_valueerror(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "db.json")
+            with open(p, "w") as fh:
+                json.dump({"blocklist": ["not", "a", "dict"]}, fh)
+            with self.assertRaises(ValueError) as ctx:
+                ReputationDB.load(p)
+            self.assertIn("blocklist", str(ctx.exception))
+
+    def test_db_load_non_dict_entry_handled_gracefully(self):
+        """A blocklist entry that is not a str or dict should not crash load()."""
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "db.json")
+            with open(p, "w") as fh:
+                json.dump({"blocklist": {"weird.example": 42}}, fh)
+            db = ReputationDB.load(p)
+            # Should load without raising; entry gets default category
+            self.assertIn("weird.example", db.blocklist)
+            self.assertEqual(db.blocklist["weird.example"]["category"], "malicious")
+
+    # --- score_indicator / score_batch edge cases ---
+
+    def test_score_indicator_empty_string_returns_unknown(self):
+        v = score_indicator("", ReputationDB())
+        self.assertEqual(v.indicator.kind, "unknown")
+        self.assertIsInstance(v.score, int)
+
+    def test_score_batch_none_returns_empty(self):
+        from iocrep.core import score_batch as _score_batch
+        result = _score_batch(None)  # type: ignore[arg-type]
+        self.assertEqual(result, [])
+
+    def test_score_batch_skips_none_entries(self):
+        from iocrep.core import score_batch as _score_batch
+        result = _score_batch([None, "8.8.8.8", None])  # type: ignore[list-item]
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].indicator.value, "8.8.8.8")
+
+    def test_score_batch_skips_whitespace_entries(self):
+        from iocrep.core import score_batch as _score_batch
+        result = _score_batch(["   ", "\t", "8.8.8.8"])
+        self.assertEqual(len(result), 1)
+
+    # --- CLI edge cases ---
+
+    def test_cli_missing_infile_returns_2(self):
+        rc = main(["score", "--infile", "/nonexistent/file.txt"])
+        self.assertEqual(rc, 2)
+
+    def test_cli_bad_db_path_returns_2(self):
+        rc = main(["score", "8.8.8.8", "--db", "/nonexistent/db.json"])
+        self.assertEqual(rc, 2)
+
+    def test_cli_malformed_db_returns_2(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "bad.json")
+            with open(p, "w") as fh:
+                fh.write("[1,2,3]")
+            rc = main(["score", "8.8.8.8", "--db", p])
+            self.assertEqual(rc, 2)
+
+    def test_render_table_empty_verdicts(self):
+        from iocrep.cli import render_table
+        result = render_table([])
+        self.assertIn("0", result)
 
 
 if __name__ == "__main__":
