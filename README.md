@@ -20,6 +20,64 @@ pip install cognis-iocrep
 iocrep scan .            # → prioritized findings in seconds
 ```
 
+
+<!-- cognis:example:start -->
+## 🔎 Example output
+
+Real, reproducible output from the tool — runs offline:
+
+```console
+$ iocrep-emit --version
+iocrep 0.1.0
+```
+
+```console
+$ iocrep-emit --help
+usage: iocrep [-h] [--version] {score} ...
+
+Score IOCs against offline reputation/allow lists with explainable verdicts
+(defensive triage).
+
+positional arguments:
+  {score}
+    score     score indicators of compromise
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
+```
+
+> Blocks above are real `iocrep` output — reproduce them from a clone.
+
+**Sample result format** _(illustrative values — run on your own data for real findings):_
+
+```
+{
+"iocrep": {
+"findings": [
+{
+"id": "1234567890",
+"name": "Suspicious DNS Query",
+"description": "DNS query for suspicious domain",
+"category": "Network Traffic",
+"severity": "High",
+"created_at": "2023-02-20T14:30:00Z"
+},
+{
+"id": "2345678901",
+"name": "Unusual File Access",
+"description": "Access to unknown file",
+"category": "File System",
+"severity": "Medium",
+"created_at": "2023-02-21T10:15:00Z"
+}
+]
+}
+}
+```
+
+<!-- cognis:example:end -->
+
 ## Usage — step by step
 
 1. **Install:**

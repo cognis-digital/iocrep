@@ -1,0 +1,3 @@
+$ iocrep-emit --version
+
+iocrep 0.1.0

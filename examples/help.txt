@@ -1,0 +1,14 @@
+$ iocrep-emit --help
+
+usage: iocrep [-h] [--version] {score} ...
+
+Score IOCs against offline reputation/allow lists with explainable verdicts
+(defensive triage).
+
+positional arguments:
+  {score}
+    score     score indicators of compromise
+
+options:
+  -h, --help  show this help message and exit
+  --version   show program's version number and exit
